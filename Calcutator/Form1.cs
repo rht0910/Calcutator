@@ -12,6 +12,7 @@ using System.Reflection;
 using System.CodeDom.Compiler;
 using System.Security.Permissions;
 using CSE;
+using System.Threading;
 
 namespace Calcutator
 {
@@ -22,11 +23,14 @@ namespace Calcutator
         {
             InitializeComponent();
         }
-        
+
+        volatile static int _key = 0;
+
+        /*
         private void Form1_Load(object sender, EventArgs e)
         {
 
-        }
+        }*/
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -120,15 +124,37 @@ namespace Calcutator
 
         private void button16_Click(object sender, EventArgs e)
         {
+            try
+            {
+                CsEval.EvalEnvironment = this;
+                var eval = CsEval.Eval(textBox1.Text);
+                textBox1.Text = eval.ToString();
+            }
+            catch
+            {
+                textBox1.Text = "エラー:サポートされていない要求です。";
+            }
+        }
 
-            //double num1 = Double.Parse(textBox1.Text);
+        public void Form1_Load(object sender, KeyEventArgs e)
+        {
+            while(true)
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    try
+                    {
 
-            //decimal total = Decimal.Add(Decimal.Multiply(test, Decimal.Zero), Decimal.Zero);
-            //計算式
-            CsEval.EvalEnvironment = this;
-            var eval = CsEval.Eval(textBox1.Text);
-            textBox1.Text = eval.ToString();
-            
+                        CsEval.EvalEnvironment = this;
+                        var eval = CsEval.Eval(textBox1.Text);
+                        textBox1.Text = eval.ToString();
+                    }
+                    catch
+                    {
+                        textBox1.Text = "エラー:サポートされていない要求です。";
+                    }
+                }
+            }
         }
     }
 }
